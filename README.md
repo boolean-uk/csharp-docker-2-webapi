@@ -45,6 +45,41 @@ WORKDIR /exercise.wwwapi
 COPY --from=build-env /exercise.wwwapi/out .
 ENTRYPOINT ["dotnet", "exercise.wwwapi.dll"]
 ```
+- Now create a Docker Compose file
+```
+touch docker-compose.yml
+```
+- Now open the docker-compose.yml and add the following contents to it:
+```
+version: '3.9'
+
+services:
+  csharpapp:
+    container_name: csharpapi
+    image: uerbzr/csharpapi:1.0
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=db;Database=postgres;Username=postgres;Password=postgres"
+    depends_on:
+      - db
+  
+  db:
+    container_name: db
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
+```
 - All being well you should be able to run the following command: 
 ```
 docker build -t my-api-image -f Dockerfile .  
